@@ -63,6 +63,7 @@ const Login = () => {
           {/* Form */}
           <form
             onSubmit={handleSubmit((data) => {
+              setError("")
               mutate(data)
             })}
             className="flex flex-col gap-4"
@@ -161,10 +162,10 @@ const Login = () => {
               className="w-full h-14 bg-violet-main hover:bg-violet-main/80 text-white font-semibold rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isPending ? (
-                <>
+                <div className="flex items-center gap-2">
                   <Icon icon="mdi:loading" className="size-5 animate-spin" />
                   Cargando...
-                </>
+                </div>
               ) : (
                 "Entrar"
               )}
