@@ -5,9 +5,31 @@ import { useForm } from "react-hook-form"
 import { Link } from "react-router-dom"
 import { Icon } from "@iconify/react"
 import { useState } from "react"
+import login from "@/services/AuthServices"
+import { useMutation } from "@tanstack/react-query"
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false)
+  const [error, setError] = useState("")
+
+  const { mutate, isPending } = useMutation({
+    mutationKey: ["login"],
+    mutationFn: login,
+    onSuccess: (response) => {
+      if (response.data.length === 0) {
+        setError("Email o contraseña incorrectos")
+        return
+      }
+      const user = response.data[0]
+
+      console.log("Login exitoso:", user)
+      alert(`¡Bienvenido ${user.name}!`)
+    },
+    onError: (error) => {
+      console.error("Error en la autenticación:", error)
+      setError("Error en la autenticación")
+    },
+  })
 
   const {
     handleSubmit,
@@ -21,9 +43,6 @@ const Login = () => {
     resolver: zodResolver(loginSchema),
   })
 
-  const onSubmit = (data: any) => {
-    console.log(data)
-  }
   return (
     <AuthLayout>
       <div className="flex flex-col gap-8 min-h-screen md:min-h-0">
@@ -43,7 +62,9 @@ const Login = () => {
 
           {/* Form */}
           <form
-            onSubmit={handleSubmit(onSubmit)}
+            onSubmit={handleSubmit((data) => {
+              mutate(data)
+            })}
             className="flex flex-col gap-4"
           >
             {/* Email Input */}
@@ -126,16 +147,27 @@ const Login = () => {
                   {errors.password.message}
                 </p>
               )}
-
-              {/* Error API response */}
             </div>
+
+            {/* Error API response */}
+            {error && (
+              <p className="text-red-error text-sm font-bold">{error}</p>
+            )}
 
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full h-14 bg-violet-main hover:bg-violet-main/80 text-white font-semibold rounded-lg transition-all duration-200"
+              disabled={isPending}
+              className="w-full h-14 bg-violet-main hover:bg-violet-main/80 text-white font-semibold rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              Entrar
+              {isPending ? (
+                <>
+                  <Icon icon="mdi:loading" className="size-5 animate-spin" />
+                  Cargando...
+                </>
+              ) : (
+                "Entrar"
+              )}
             </button>
 
             {/* Forgot password link */}
