@@ -1,13 +1,12 @@
 import axiosInstance from "./axiosInstance"
 
-export default async function login({
-  email,
-  password,
-}: {
+interface loginProps {
   email: string
   password: string
-}) {
-  const response = await axiosInstance.get(`users?email=${email}&password=${password}`
+}
+export default async function login({ email, password }: loginProps) {
+  const response = await axiosInstance.get(
+    `users?email=${email}&password=${password}`
   )
   return response
 }
