@@ -88,7 +88,7 @@ const HeaderAuth = () => {
           }`}
         >
           <div
-            className={`bg-white-main w-[280px] h-full p-6 flex flex-col gap-6 transition-all duration-300 ${
+            className={`bg-white w-[280px] h-full p-6 flex flex-col gap-6 transition-all duration-300 ${
               open ? "-translate-x-0" : "translate-x-full"
             }`}
           >
@@ -124,6 +124,22 @@ const HeaderAuth = () => {
                 }}
               >
                 Inicio
+              </NavLink>
+
+              <NavLink
+                to="/login"
+                className={({ isActive }) =>
+                  `block rounded-md px-3 py-2 text-base font-medium ${
+                    isActive
+                      ? "bg-violet-main text-white"
+                      : "hover:bg-violet-main/80 hover:text-white"
+                  } transition-colors duration-300`
+                }
+                onClick={() => {
+                  setOpen(false)
+                }}
+              >
+                Iniciar sesión
               </NavLink>
             </div>
           </div>
