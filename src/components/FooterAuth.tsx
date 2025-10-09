@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom"
 import { motion } from "motion/react"
+import { memo } from "react"
 
-export default function FooterAuth() {
+function FooterAuth() {
   return (
     <footer className="w-full bg-white">
       <div className="max-w-7xl mx-auto px-4 py-8">
@@ -55,3 +56,5 @@ export default function FooterAuth() {
     </footer>
   )
 }
+
+export default memo(FooterAuth)
