@@ -1,16 +1,46 @@
 {
   "users": [
     {
-      "id": 1,
+      "id": "1",
       "email": "usuario@ejemplo.com",
       "password": "Password123",
       "name": "Usuario Demo"
     },
     {
-      "id": 2,
+      "id": "2",
       "email": "admin@test.com",
       "password": "Admin123",
       "name": "Admin"
+    },
+    {
+      "id": "d4f8",
+      "name": "Agustina Victoria Lopez",
+      "email": "agusvlopez@gmail.com",
+      "password": "12345678"
+    },
+    {
+      "id": "20c5",
+      "name": "Agustina Victoria Lopez",
+      "email": "agusvlopez@gmail.com",
+      "password": "12345678"
+    },
+    {
+      "id": "41d3",
+      "name": "Agustina Victoria Lopez",
+      "email": "agusvlopez@gmail.com",
+      "password": "12345678"
+    },
+    {
+      "id": "3c7e",
+      "name": "Agustina Victoria Lopez",
+      "email": "agusvlopez@gmail.com",
+      "password": "12345678"
+    },
+    {
+      "id": "86ca",
+      "name": "Agustina Victoria Lopez",
+      "email": "agusvlopez@gmail.com",
+      "password": "Agus123456"
     }
   ]
 }

@@ -77,6 +77,22 @@ const HeaderAuth = () => {
                   &nbsp;
                 </span>
               </NavLink>
+
+              <NavLink
+                to="/register"
+                className={`rounded-md px-3 py-2 text-sm font-medium relative group hover:text-violet-main transition-all duration-300 ${
+                  pathname === "/register" ? "text-violet-main" : "text-light"
+                }`}
+              >
+                Registrarse
+                <span
+                  className={`h-[2.5px] inline-block bg-violet-main absolute left-1/2 -translate-x-1/2 bottom-[1px] transition-[width] ease duration-[400ms] ${
+                    pathname === "/register" ? "w-[80%]" : "w-0"
+                  }`}
+                >
+                  &nbsp;
+                </span>
+              </NavLink>
             </div>
           </div>
         </div>
