@@ -169,9 +169,9 @@ const Login = () => {
 
           {/* Forgot password link */}
           <div className="text-center">
-            <a href="#" className="text-sm font-semibold">
+            <Link to="/password-recovery" className="text-sm font-semibold">
               ¿Olvidaste la contraseña?
-            </a>
+            </Link>
           </div>
         </form>
       </div>

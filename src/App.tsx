@@ -3,6 +3,7 @@ import Login from "./pages/auth/login/Login"
 import AuthLayout from "./layout/AuthLayout"
 import Home from "./pages/home/Home"
 import Error from "./pages/error/Error"
+import PasswordRecovery from "./pages/auth/password recovery/PasswordRecovery"
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
         <Route path="/" element={<AuthLayout />}>
           <Route path="" element={<Home />} />
           <Route path="login" element={<Login />} />
+          <Route path="password-recovery" element={<PasswordRecovery />} />
           <Route path="error" element={<Error />} />
         </Route>
 
