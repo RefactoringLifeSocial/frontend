@@ -3,13 +3,13 @@ import { emailSchema } from "@/utils/schemas/passwordRecoverySchema"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Icon } from "@iconify/react"
 import { useMutation } from "@tanstack/react-query"
-import { useState } from "react"
+import { memo, useState } from "react"
 import { useForm } from "react-hook-form"
 
 interface SendEmailFormProps {
-  setEmail: (email: string) => void
+  onSuccess: (email: string) => void
 }
-const SendEmailForm = ({ setEmail }: SendEmailFormProps) => {
+const SendEmailForm = ({ onSuccess }: SendEmailFormProps) => {
   const [error, setError] = useState("")
 
   const { mutate, isPending } = useMutation({
@@ -17,10 +17,10 @@ const SendEmailForm = ({ setEmail }: SendEmailFormProps) => {
     mutationFn: sendPasswordResetEmail,
     onSuccess: (response) => {
       if (response.data.length === 0) {
-        setError("Email o contraseña incorrectos")
+        setError("Email incorrecto")
         return
       }
-      setEmail(getValues("email"))
+      onSuccess(getValues("email"))
     },
     onError: (error) => {
       console.error("Error en la autenticación:", error)
@@ -120,4 +120,4 @@ const SendEmailForm = ({ setEmail }: SendEmailFormProps) => {
     </>
   )
 }
-export default SendEmailForm
+export default memo(SendEmailForm)
