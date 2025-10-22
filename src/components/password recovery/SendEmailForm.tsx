@@ -24,7 +24,7 @@ const SendEmailForm = ({ onSuccess }: SendEmailFormProps) => {
     },
     onError: (error) => {
       console.error("Error en la autenticación:", error)
-      setError("Error en la autenticación")
+      setError("No se encontro el email")
     },
   })
 
