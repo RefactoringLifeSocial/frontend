@@ -99,7 +99,7 @@ const SendEmailForm = ({ onSuccess }: SendEmailFormProps) => {
           <button
             type="submit"
             disabled={isPending}
-            className="w-full h-14 bg-violet-main hover:bg-violet-main/80 text-white font-semibold rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full h-14 bg-violet-main hover:bg-violet-main/80 text-white font-semibold rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
           >
             {isPending ? (
               <div className="flex items-center gap-2">
