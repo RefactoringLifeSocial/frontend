@@ -16,14 +16,12 @@ export async function sendPasswordResetEmail({ email }: { email: string }) {
     return Math.floor(100000 + Math.random() * 900000).toString()
   }
 
-  // Buscar el usuario por email
   const response = await axiosInstance.get(`users?email=${email}`)
 
   if (response.status === 200 && response.data.length > 0) {
-    const user = response.data[0] // JSON Server devuelve un array
+    const user = response.data[0]
     const code = generateCode()
 
-    // Actualizar al usuario con el código generado
     const updateResponse = await axiosInstance.patch(`users/${user.id}`, {
       code: code,
     })
@@ -32,6 +30,13 @@ export async function sendPasswordResetEmail({ email }: { email: string }) {
   } else {
     throw new Error("Usuario no encontrado")
   }
+}
+
+export async function verifyCode({ email, code }: { email: string; code: string }) {
+  const response = await axiosInstance.get(
+    `users?email=${email}&code=${code}`
+  )
+  return response
 }
 
 export async function resetPassword({ email, password }: loginProps) {
