@@ -39,6 +39,7 @@ const SendEmailForm = ({ onSuccess }: SendEmailFormProps) => {
     },
     resolver: zodResolver(emailSchema),
   })
+
   return (
     <>
       <div className="flex flex-col p-6">
@@ -60,17 +61,6 @@ const SendEmailForm = ({ onSuccess }: SendEmailFormProps) => {
             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600">
               <Icon icon="mdi:lock" className="size-5" />
             </div>
-            {errors.email && (
-              <div className="group">
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-red-error">
-                  <Icon icon="mdi:alert-circle" className="size-5" />
-                </div>
-                <div className="absolute right-7 top-2/3 -translate-y-1/2 mb-2 hidden group-hover:block bg-black text-white text-xs px-2 py-1 rounded">
-                  {errors.email.message}
-                </div>
-              </div>
-            )}
-
             <input
               type="email"
               className={`w-full h-14 pl-12 pr-4 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:border-transparent ${
@@ -84,7 +74,7 @@ const SendEmailForm = ({ onSuccess }: SendEmailFormProps) => {
           </div>
 
           {/* Errors */}
-          <div className="md:hidden flex flex-col gap-2">
+          <div className="flex flex-col gap-2">
             {errors.email && (
               <p className="text-red-error text-sm font-bold">
                 {errors.email.message}
