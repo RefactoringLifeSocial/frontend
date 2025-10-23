@@ -4,6 +4,11 @@ interface loginProps {
   email: string
   password: string
 }
+
+interface verifyCodeProps {
+  email: string
+  code: string
+}
 export default async function login({ email, password }: loginProps) {
   const response = await axiosInstance.get(
     `users?email=${email}&password=${password}`
@@ -32,16 +37,26 @@ export async function sendPasswordResetEmail({ email }: { email: string }) {
   }
 }
 
-export async function verifyCode({ email, code }: { email: string; code: string }) {
-  const response = await axiosInstance.get(
-    `users?email=${email}&code=${code}`
-  )
+
+export async function verifyCode({
+  email,
+  code,
+}: verifyCodeProps) {
+  const response = await axiosInstance.get(`users?email=${email}&code=${code}`)
   return response
 }
 
 export async function resetPassword({ email, password }: loginProps) {
-  const response = await axiosInstance.get(
-    `users?email=${email}&password=${password}`
-  )
-  return response
+  const user = await axiosInstance.get(`users?email=${email}`)
+
+  if (user.status === 200 && user.data.length > 0) {
+    const userId = user.data[0].id
+
+    const updateResponse = await axiosInstance.patch(`users/${userId}`, {
+      password: password,
+    })
+    return updateResponse
+  } else {
+    throw new Error("Usuario no encontrado")
+  }
 }
