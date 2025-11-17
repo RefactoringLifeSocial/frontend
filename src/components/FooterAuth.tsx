@@ -34,6 +34,9 @@ function FooterAuth() {
                 >
                   Iniciar sesión
                 </Link>
+                <Link to="/register" className=" hover:text-red-main transition-colors duration-300 text-base" >
+                  Registrarse 
+                </Link>
               </div>
             </nav>
           </div>
