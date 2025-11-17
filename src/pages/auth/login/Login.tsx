@@ -1,6 +1,6 @@
 import { loginSchema } from "@/utils/schemas/loginSchema"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Controller, useForm } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { memo, useState } from "react"
 import useLogin from "@/hooks/auth/useLogin"
 import FormInput from "@/components/ui/FormInput"
@@ -14,7 +14,7 @@ const Login = () => {
   const {
     handleSubmit,
     formState: { errors },
-    control,
+    register,
   } = useForm({
     defaultValues: { email: "", password: "" },
     resolver: zodResolver(loginSchema),
@@ -35,35 +35,21 @@ const Login = () => {
         {/* Form */}
         <form onSubmit={loginFunction} className="flex flex-col gap-4 w-full">
           {/* Email FormInput */}
-          <Controller
-            name="email"
-            control={control}
-            render={({ field }) => (
-              <FormInput
-                type="email"
-                label="Email"
-                placeholder="Email"
-                {...field} // Spreads value, onChange, etc. from Controller
-                error={errors.email}
-                disabled={loading}
-              />
-            )}
+          <FormInput
+            type="email"
+            placeholder="Email"
+            {...register("email")} // Spreads value, onChange, etc. from Controller
+            error={errors.email}
+            disabled={loading}
           />
 
           {/* Password FormInput */}
-          <Controller
-            name="password"
-            control={control}
-            render={({ field }) => (
-              <FormInput
-                type={showPassword ? "text" : "password"}
-                label="Password"
-                placeholder="Contraseña"
-                {...field}
-                error={errors.password}
-                disabled={loading}
-              />
-            )}
+          <FormInput
+            type={showPassword ? "text" : "password"}
+            placeholder="Contraseña"
+            {...register("password")}
+            error={errors.password}
+            disabled={loading}
           />
 
           {/* Remember me checkbox */}

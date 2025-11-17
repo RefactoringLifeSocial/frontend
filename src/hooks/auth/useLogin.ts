@@ -26,6 +26,7 @@ const useLogin = () => {
 
   const login = async ({ email, password }: LoginParams) => {
     setLoading(true)
+    setError(null)
 
     try {
       const response = await axiosInstance.post("auth/login", {

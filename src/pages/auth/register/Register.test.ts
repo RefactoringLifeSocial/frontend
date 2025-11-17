@@ -126,7 +126,7 @@ describe("Register Component", () => {
       await user.type(screen.getByPlaceholderText("Contraseña"), VALID_PASSWORD)
       await user.type(
         screen.getByPlaceholderText("Confirmar contraseña"),
-        "WrongPassword"
+        VALID_PASSWORD + "mismatch"
       )
 
       const submitButton = screen.getByRole("button", { name: /crear cuenta/i })
