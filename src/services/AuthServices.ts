@@ -9,7 +9,7 @@ interface verifyCodeProps {
   email: string
   code: string
 }
-export default async function login({ email, password }: loginProps) {
+export async function login({ email, password }: loginProps) {
   const response = await axiosInstance.get(
     `users?email=${email}&password=${password}`
   )
@@ -59,4 +59,17 @@ export async function resetPassword({ email, password }: loginProps) {
   } else {
     throw new Error("Usuario no encontrado")
   }
+}
+interface registerProps {
+  name: string
+  email: string
+  password: string
+}
+export async function registerUser({ name, email, password }: registerProps) {
+  const response = await axiosInstance.post("/users", {
+    name,
+    email,
+    password,
+  })
+  return response
 }

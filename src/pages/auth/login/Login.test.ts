@@ -5,7 +5,7 @@ import userEvent from "@testing-library/user-event"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { BrowserRouter } from "react-router-dom"
 import Login from "./Login"
-import login from "@/services/AuthServices"
+import { login } from "@/services/AuthServices"
 import React from "react"
 import type { AxiosResponse } from "axios"
 
