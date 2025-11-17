@@ -4,31 +4,11 @@ import { useForm } from "react-hook-form"
 import { Link } from "react-router-dom"
 import { Icon } from "@iconify/react"
 import { memo, useState } from "react"
-import login from "@/services/AuthServices"
-import { useMutation } from "@tanstack/react-query"
+import useLogin from "@/hooks/auth/useLogin"
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState("")
-
-  const { mutate, isPending } = useMutation({
-    mutationKey: ["login"],
-    mutationFn: login,
-    onSuccess: (response) => {
-      if (response.data.length === 0) {
-        setError("Email o contraseña incorrectos")
-        return
-      }
-      const user = response.data[0]
-
-      console.log("Login exitoso:", user)
-      alert(`¡Bienvenido ${user.name}!`)
-    },
-    onError: (error) => {
-      console.error("Error en la autenticación:", error)
-      setError("Error en la autenticación")
-    },
-  })
+  const { login, loading, error } = useLogin()
 
   const {
     handleSubmit,
@@ -42,6 +22,13 @@ const Login = () => {
     resolver: zodResolver(loginSchema),
   })
 
+  const loginFunction = handleSubmit(async (values) => {
+    try {
+      await login(values)
+    } catch (error: any) {
+      console.error(error)
+    }
+  })
   return (
     <div className="flex flex-col gap-8 min-h-screen md:min-h-0">
       <Link
@@ -59,13 +46,7 @@ const Login = () => {
         </h1>
 
         {/* Form */}
-        <form
-          onSubmit={handleSubmit((data) => {
-            setError("")
-            mutate(data)
-          })}
-          className="flex flex-col gap-4"
-        >
+        <form onSubmit={loginFunction} className="flex flex-col gap-4">
           {/* Email Input */}
           <div className="relative">
             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600">
@@ -92,6 +73,7 @@ const Login = () => {
               type="email"
               placeholder="Email"
               {...register("email")}
+              disabled={loading}
             />
           </div>
 
@@ -120,6 +102,7 @@ const Login = () => {
               }`}
               placeholder="Contraseña"
               {...register("password")}
+              disabled={loading}
             />
           </div>
 
@@ -130,6 +113,7 @@ const Login = () => {
               checked={showPassword}
               onChange={(e) => setShowPassword(e.target.checked)}
               className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+              disabled={loading}
             />
             <span className="text-sm font-semibold">Mostrar contraseña</span>
           </label>
@@ -154,10 +138,10 @@ const Login = () => {
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={isPending}
+            disabled={loading}
             className="w-full h-14 bg-violet-main hover:bg-violet-main/80 text-white font-semibold rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            {isPending ? (
+            {loading ? (
               <div className="flex items-center gap-2">
                 <Icon icon="mdi:loading" className="size-5 animate-spin" />
                 Cargando...
