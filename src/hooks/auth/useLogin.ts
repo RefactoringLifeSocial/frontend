@@ -34,22 +34,25 @@ const useLogin = () => {
       })
 
       const data = response.data
-      const user = decodeJwt(data.accesToken)
+      const user = decodeJwt(data.access_token)
+      
       const userAuth = {
         user: user,
-        token: data.accesToken,
+        token: data.access_token,
       }
       setAuthUser(userAuth)
 
-      await setCookieAsync("token", data.accesToken, {
+      await setCookieAsync("token", data.access_token, {
         expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
       })
+
+      window.location.href = "/"
 
       return null
     } catch (error: any) {
       if (error.response && error.response.status === 401) {
-        setError("Credenciales incorrectas.")
-        throw new Error("Credenciales incorrectas.")
+        setError("Email o contraseña incorrectos.")
+        throw new Error("Email o contraseña incorrectos.")
       } else {
         setError("Error en la autenticación.")
         throw error

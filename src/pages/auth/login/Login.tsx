@@ -39,12 +39,8 @@ const Login = () => {
         <span className="sr-only">Volver</span>
       </Link>
 
-      <div className="flex flex-col p-6">
-        {/* Title */}
-        <h1 className="text-3xl font-bold text-gray-900 mb-16">
-          Iniciar sesión
-        </h1>
-
+      <div className="flex flex-col gap-6 p-6 justify-center items-center">
+        <img src="logo-name.svg" alt="Logo" className="w-40" />
         {/* Form */}
         <form onSubmit={loginFunction} className="flex flex-col gap-4">
           {/* Email Input */}
