@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form"
 import { Link } from "react-router-dom"
 import { Icon } from "@iconify/react"
 import { memo, useState } from "react"
-import login from "@/services/AuthServices"
+import { login } from "@/services/AuthServices"
 import { useMutation } from "@tanstack/react-query"
 
 const Login = () => {
