@@ -85,7 +85,7 @@ const Login = () => {
 
             {/* Forgot password link */}
             <Link
-              to="#"
+              to="/password-recovery"
               className="text-xs font-semibold text-violet-main text-end"
             >
               ¿Olvidaste la contraseña?
