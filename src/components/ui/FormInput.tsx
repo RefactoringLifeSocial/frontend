@@ -27,7 +27,7 @@ const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
             {...props}
           />
 
-          {/* Icono de error */}
+          {/* Icono de error y tooltip a la derecha (visible en desktop) */}
           {error && (
             <div className="group absolute right-0 top-1/2 -translate-y-1/2">
               <Icon icon="mdi:alert-circle" className="size-5 text-red-500 cursor-pointer" />
@@ -38,7 +38,6 @@ const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
           )}
         </div>
 
-        {/* Error en móvil */}
         {error && (
           <p className="mt-1 text-xs text-red-500">{error.message}</p>
         )}
