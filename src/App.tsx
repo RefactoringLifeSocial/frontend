@@ -5,13 +5,15 @@ import AuthLayout from "./layout/AuthLayout"
 import Home from "./pages/home/Home"
 import Error from "./pages/error/Error"
 import PasswordRecovery from "./pages/auth/password recovery/PasswordRecovery"
+import Onboarding from "./pages/onboarding/OnBording"
 
 function App() {
   return (
-    <main>
+    <main className="font-poppins">
       <Routes>
+        <Route path="" element={<Onboarding />} />
         <Route path="/" element={<AuthLayout />}>
-          <Route path="" element={<Home />} />
+          <Route path="home" element={<Home />} />
           <Route path="login" element={<Login />} />
           <Route path="password-recovery" element={<PasswordRecovery />} />
           <Route path="register" element={<Register />} />
