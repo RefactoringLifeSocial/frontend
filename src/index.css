@@ -9,7 +9,15 @@
 }
 
 @theme {
-  --font-poppins: "Poppins", sans-serif;
   --color-red-error: #c0392b;
-  --color-violet-main: #7353ba;
+  --color-sky-main: #62c4db;
+  --color-violet-main: #8c61a5;
+  --color-yellow-main: #ffdc34;
+  --color-green-main: #55baa8;
+  --color-orange-main: #eb5f3e;
+  --font-poppins: "Poppins", sans-serif;
+}
+
+button{
+  @apply cursor-pointer
 }
