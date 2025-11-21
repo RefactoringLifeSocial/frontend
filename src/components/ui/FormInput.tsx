@@ -3,46 +3,48 @@ import { forwardRef } from "react"
 import type { FieldError } from "react-hook-form"
 
 interface FormInputProps extends React.ComponentPropsWithoutRef<"input"> {
-  icon: string
   error?: FieldError
+  label?: string
 }
 
 const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
-  ({ icon, error, type = "text", ...props }, ref) => {
+  ({ error, type = "text", ...props }, ref) => {
     return (
-      <div className="relative">
-        {/* Icono a la izquierda */}
-        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600">
-          <Icon icon={icon} className="size-5" />
+      <div className="relative w-full">
+        <div className="relative">
+          {/* Input */}
+          <input
+            ref={ref}
+            type={type}
+            className={`
+              peer w-full bg-transparent border-b-2 pb-2 pt-5 text-gray-900
+              focus:outline-none transition-all duration-200 px-2 focus:placeholder:-translate-y-6
+              ${error 
+                ? "border-red-error focus:border-red-error" 
+                : "border-gray-400 focus:border-violet-main"
+              }
+            `}
+            {...props}
+          />
+
+          {/* Icono de error y tooltip a la derecha (visible en desktop) */}
+          {error && (
+            <div className="group absolute right-0 top-1/2 -translate-y-1/2">
+              <Icon icon="mdi:alert-circle" className="size-5 text-red-500 cursor-pointer" />
+              <div className="absolute right-0 top-full mt-1 z-10 hidden group-hover:block bg-gray-900 text-white text-xs px-3 py-1.5 rounded shadow-lg whitespace-nowrap">
+                {error.message}
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Icono de error y tooltip a la derecha (visible en desktop) */}
         {error && (
-          <div className="group hidden md:block">
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-red-error">
-              <Icon icon="mdi:alert-circle" className="size-5" />
-            </div>
-            <div className="absolute right-10 top-1/2 -translate-y-1/2 z-10 hidden group-hover:block bg-black text-white text-xs px-2 py-1 rounded whitespace-nowrap">
-              {error.message}
-            </div>
-          </div>
+          <p className="mt-1 text-xs text-red-500">{error.message}</p>
         )}
-
-        <input
-          ref={ref}
-          type={type}
-          className={`w-full h-14 pl-12 pr-4 border rounded-lg text-gray-900 placeholder-gray-500 focus:border-transparent focus:outline-none focus:ring-2 ${
-            error
-              ? "border-red-error focus:ring-red-error"
-              : "border-gray-300 focus:ring-purple-500"
-          }`}
-          {...props}
-        />
       </div>
     )
   }
 )
 
 FormInput.displayName = "FormInput"
-
 export default FormInput
