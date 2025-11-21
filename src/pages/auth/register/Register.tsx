@@ -77,21 +77,20 @@ const Register = () => {
             className="flex flex-col gap-4"
           >
             <FormInput
-              icon="mdi:person"
               type="text"
               placeholder="Nombre completo"
               error={errors.name}
               {...register("name")}
             />
+            
             <FormInput
-              icon="mdi:email"
               type="email"
               placeholder="Email"
               error={errors.email}
               {...register("email")}
             />
+
             <FormInput
-              icon="mdi:lock"
               type={showPassword ? "text" : "password"}
               placeholder="Contraseña"
               error={errors.password}
@@ -100,7 +99,6 @@ const Register = () => {
 
             {/* Confirmar contraseña */}
             <FormInput
-              icon="mdi:lock"
               type={showPassword ? "text" : "password"}
               placeholder="Confirmar contraseña"
               error={errors.confirmPassword} 

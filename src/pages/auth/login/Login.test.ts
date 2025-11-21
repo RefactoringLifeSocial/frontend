@@ -5,19 +5,37 @@ import userEvent from "@testing-library/user-event"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { BrowserRouter } from "react-router-dom"
 import Login from "./Login"
-import { login } from "@/services/AuthServices"
+import axiosInstance from "@/services/axiosInstance"
 import React from "react"
 import type { AxiosResponse } from "axios"
+import Cookies from "js-cookie"
 
-// Mock del servicio de autenticación
-jest.mock("@/services/AuthServices")
-const mockLogin = login as jest.MockedFunction<typeof login>
+// Mock de axiosInstance en lugar del servicio
+jest.mock("@/services/axiosInstance", () => ({
+  __esModule: true,
+  default: {
+    post: jest.fn(),
+  },
+}))
+const mockAxiosInstance = axiosInstance as jest.Mocked<typeof axiosInstance>
+
+// Mock de Cookies
+jest.mock("js-cookie")
+const mockCookies = Cookies as jest.Mocked<typeof Cookies>
 
 // Mock de react-router-dom para capturar navegación
 const mockNavigate = jest.fn()
 jest.mock("react-router-dom", () => ({
   ...jest.requireActual("react-router-dom"),
   useNavigate: () => mockNavigate,
+}))
+
+// Mock del store de autenticación
+const mockSetAuthUser = jest.fn()
+jest.mock("@/stores/AuthStore", () => ({
+  useAuthStore: () => ({
+    setAuthUser: mockSetAuthUser,
+  }),
 }))
 
 // Helper para renderizar con providers necesarios
@@ -38,16 +56,26 @@ const renderWithProviders = (component: React.ReactElement) => {
   )
 }
 
-// Helper para crear respuestas mock de Axios
-const createMockResponse = <T,>(data: T): AxiosResponse<T> => ({
-  data,
+// Helper para crear respuestas mock de Axios con la nueva estructura
+const createMockLoginResponse = (
+  token: string
+): AxiosResponse<{ access_token: string }> => ({
+  data: {
+    access_token: token,
+  },
   status: 200,
   statusText: "OK",
-  headers: {},
+  headers: {
+    "content-type": "application/json; charset=utf-8",
+  },
   config: {
     headers: {} as any,
   } as any,
 })
+
+// Token de ejemplo válido
+const MOCK_TOKEN =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3RAZXhhbXBsZS5jb20iLCJzdWIiOiJkNTY0MDAzNy0xYmQwLTQ0ZDgtYjAxMi0wYjY0ZDU3MDhjZTMiLCJyb2xlIjoidXNlciIsImlhdCI6MTc2MzQwMzgyM30.acibHBt5Cd0azXpc_MPor5F95Igafon0VewqDGltCv4"
 
 // Contraseña válida que cumple con el schema
 const VALID_PASSWORD = "Password123"
@@ -58,6 +86,12 @@ describe("Login Component", () => {
     jest.spyOn(console, "log").mockImplementation()
     jest.spyOn(console, "error").mockImplementation()
     jest.spyOn(window, "alert").mockImplementation()
+
+    // Mock de Cookies.set para que no falle
+    mockCookies.set.mockImplementation(() => undefined as any)
+
+    // Resetear el mock de axios
+    mockAxiosInstance.post.mockReset()
   })
 
   afterEach(() => {
@@ -68,32 +102,22 @@ describe("Login Component", () => {
     it("debe renderizar todos los elementos del formulario", () => {
       renderWithProviders(React.createElement(Login))
 
-      expect(screen.getByText("Iniciar sesión")).toBeInTheDocument()
+      // Buscar por el logo (aunque dice "Iniciar sesión" en el test, el componente no tiene ese texto)
+      expect(screen.getByAltText("Logo")).toBeInTheDocument()
       expect(screen.getByPlaceholderText("Email")).toBeInTheDocument()
       expect(screen.getByPlaceholderText("Contraseña")).toBeInTheDocument()
       expect(screen.getByLabelText("Mostrar contraseña")).toBeInTheDocument()
-      expect(
-        screen.getByRole("button", { name: /entrar/i })
-      ).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /Login/i })).toBeInTheDocument()
       expect(screen.getByText("¿Olvidaste la contraseña?")).toBeInTheDocument()
     })
 
-    it("debe mostrar el enlace de registro", () => {
+    it("debe mostrar el botón de Google", () => {
       renderWithProviders(React.createElement(Login))
 
-      const registerLink = screen.getByRole("link", {
-        name: /regístrate aquí/i,
+      const googleButton = screen.getByRole("button", {
+        name: /Continuar con Google/i,
       })
-      expect(registerLink).toBeInTheDocument()
-      expect(registerLink).toHaveAttribute("href", "/register")
-    })
-
-    it("debe mostrar el botón de volver en mobile", () => {
-      renderWithProviders(React.createElement(Login))
-
-      const backButton = screen.getByRole("link", { name: /volver/i })
-      expect(backButton).toBeInTheDocument()
-      expect(backButton).toHaveAttribute("href", "/")
+      expect(googleButton).toBeInTheDocument()
     })
   })
 
@@ -102,11 +126,13 @@ describe("Login Component", () => {
       const user = userEvent.setup()
       renderWithProviders(React.createElement(Login))
 
-      const submitButton = screen.getByRole("button", { name: /entrar/i })
+      const submitButton = screen.getByRole("button", { name: /Login/i })
       await user.click(submitButton)
 
       await waitFor(() => {
-        expect(screen.getAllByText("El email es obligatorio").length).toBeGreaterThan(0)
+        expect(
+          screen.getAllByText("El email es obligatorio").length
+        ).toBeGreaterThan(0)
       })
     })
 
@@ -115,14 +141,15 @@ describe("Login Component", () => {
       renderWithProviders(React.createElement(Login))
 
       const emailInput = screen.getByPlaceholderText("Email")
-      const submitButton = screen.getByRole("button", { name: /entrar/i })
-      
-      // Usar un email con formato válido de HTML5 pero que Zod rechazará
+      const submitButton = screen.getByRole("button", { name: /Login/i })
+
       await user.type(emailInput, "test@test")
       await user.click(submitButton)
 
       await waitFor(() => {
-        expect(screen.getAllByText("El email no es valido").length).toBeGreaterThan(0)
+        expect(
+          screen.getAllByText("El email no es valido").length
+        ).toBeGreaterThan(0)
       })
     })
 
@@ -133,11 +160,13 @@ describe("Login Component", () => {
       const emailInput = screen.getByPlaceholderText("Email")
       await user.type(emailInput, "test@example.com")
 
-      const submitButton = screen.getByRole("button", { name: /entrar/i })
+      const submitButton = screen.getByRole("button", { name: /Login/i })
       await user.click(submitButton)
 
       await waitFor(() => {
-        expect(screen.getAllByText("La contraseña es requerida").length).toBeGreaterThan(0)
+        expect(
+          screen.getAllByText("La contraseña es requerida").length
+        ).toBeGreaterThan(0)
       })
     })
 
@@ -145,7 +174,7 @@ describe("Login Component", () => {
       const user = userEvent.setup()
       renderWithProviders(React.createElement(Login))
 
-      const submitButton = screen.getByRole("button", { name: /entrar/i })
+      const submitButton = screen.getByRole("button", { name: /Login/i })
       await user.click(submitButton)
 
       await waitFor(() => {
@@ -188,48 +217,96 @@ describe("Login Component", () => {
   describe("Proceso de autenticación", () => {
     it("debe llamar al servicio de login con los datos correctos", async () => {
       const user = userEvent.setup()
-      mockLogin.mockResolvedValue(
-        createMockResponse([
-          { id: 1, name: "Test User", email: "test@example.com" },
-        ])
+      mockAxiosInstance.post.mockResolvedValue(
+        createMockLoginResponse(MOCK_TOKEN)
       )
 
       renderWithProviders(React.createElement(Login))
 
       const emailInput = screen.getByPlaceholderText("Email")
       const passwordInput = screen.getByPlaceholderText("Contraseña")
-      const submitButton = screen.getByRole("button", { name: /entrar/i })
+      const submitButton = screen.getByRole("button", { name: /Login/i })
 
       await user.type(emailInput, "test@example.com")
       await user.type(passwordInput, VALID_PASSWORD)
       await user.click(submitButton)
 
       await waitFor(() => {
-        // Verificar que se llamó al menos una vez
-        expect(mockLogin).toHaveBeenCalled()
-        // Verificar que el primer argumento es el objeto con email y password
-        const firstCallArgs = mockLogin.mock.calls[0][0]
-        expect(firstCallArgs).toEqual({
+        expect(mockAxiosInstance.post).toHaveBeenCalledWith("auth/login", {
           email: "test@example.com",
           password: VALID_PASSWORD,
         })
       })
     })
 
-    it("debe mostrar estado de carga durante la autenticación", async () => {
+    it("debe guardar el token en cookies tras login exitoso", async () => {
       const user = userEvent.setup()
-      let resolveLogin: any
-      mockLogin.mockImplementation(
-        () => new Promise((resolve) => {
-          resolveLogin = resolve
-        })
+      mockAxiosInstance.post.mockResolvedValue(
+        createMockLoginResponse(MOCK_TOKEN)
       )
 
       renderWithProviders(React.createElement(Login))
 
       const emailInput = screen.getByPlaceholderText("Email")
       const passwordInput = screen.getByPlaceholderText("Contraseña")
-      const submitButton = screen.getByRole("button", { name: /entrar/i })
+      const submitButton = screen.getByRole("button", { name: /Login/i })
+
+      await user.type(emailInput, "test@example.com")
+      await user.type(passwordInput, VALID_PASSWORD)
+      await user.click(submitButton)
+
+      await waitFor(() => {
+        expect(mockCookies.set).toHaveBeenCalledWith(
+          "token",
+          MOCK_TOKEN,
+          expect.objectContaining({
+            expires: expect.any(Date),
+          })
+        )
+      })
+    })
+
+    it("debe actualizar el store de autenticación tras login exitoso", async () => {
+      const user = userEvent.setup()
+      mockAxiosInstance.post.mockResolvedValue(
+        createMockLoginResponse(MOCK_TOKEN)
+      )
+
+      renderWithProviders(React.createElement(Login))
+
+      const emailInput = screen.getByPlaceholderText("Email")
+      const passwordInput = screen.getByPlaceholderText("Contraseña")
+      const submitButton = screen.getByRole("button", { name: /Login/i })
+
+      await user.type(emailInput, "test@example.com")
+      await user.type(passwordInput, VALID_PASSWORD)
+      await user.click(submitButton)
+
+      await waitFor(() => {
+        expect(mockSetAuthUser).toHaveBeenCalledWith(
+          expect.objectContaining({
+            token: MOCK_TOKEN,
+            user: expect.any(Object),
+          })
+        )
+      })
+    })
+
+    it("debe mostrar estado de carga durante la autenticación", async () => {
+      const user = userEvent.setup()
+      let resolveLogin: any
+      mockAxiosInstance.post.mockImplementation(
+        () =>
+          new Promise((resolve) => {
+            resolveLogin = resolve
+          })
+      )
+
+      renderWithProviders(React.createElement(Login))
+
+      const emailInput = screen.getByPlaceholderText("Email")
+      const passwordInput = screen.getByPlaceholderText("Contraseña")
+      const submitButton = screen.getByRole("button", { name: /Login/i })
 
       await user.type(emailInput, "test@example.com")
       await user.type(passwordInput, VALID_PASSWORD)
@@ -242,40 +319,23 @@ describe("Login Component", () => {
       expect(submitButton).toBeDisabled()
 
       // Resolver la promesa
-      resolveLogin(createMockResponse([{ id: 1, name: "Test", email: "test@example.com" }]))
+      resolveLogin(createMockLoginResponse(MOCK_TOKEN))
     })
 
-    it("debe mostrar alerta de bienvenida cuando el login es exitoso", async () => {
+    it("debe mostrar error cuando las credenciales son incorrectas (401)", async () => {
       const user = userEvent.setup()
-      const mockUser = { id: 1, name: "Juan Pérez", email: "juan@example.com" }
-      mockLogin.mockResolvedValue(createMockResponse([mockUser]))
-
-      const alertSpy = jest.spyOn(window, "alert")
-
-      renderWithProviders(React.createElement(Login))
-
-      const emailInput = screen.getByPlaceholderText("Email")
-      const passwordInput = screen.getByPlaceholderText("Contraseña")
-      const submitButton = screen.getByRole("button", { name: /entrar/i })
-
-      await user.type(emailInput, "juan@example.com")
-      await user.type(passwordInput, VALID_PASSWORD)
-      await user.click(submitButton)
-
-      await waitFor(() => {
-        expect(alertSpy).toHaveBeenCalledWith("¡Bienvenido Juan Pérez!")
+      mockAxiosInstance.post.mockRejectedValue({
+        response: {
+          status: 401,
+          data: { message: "Unauthorized" },
+        },
       })
-    })
-
-    it("debe mostrar error cuando las credenciales son incorrectas", async () => {
-      const user = userEvent.setup()
-      mockLogin.mockResolvedValue(createMockResponse([]))
 
       renderWithProviders(React.createElement(Login))
 
       const emailInput = screen.getByPlaceholderText("Email")
       const passwordInput = screen.getByPlaceholderText("Contraseña")
-      const submitButton = screen.getByRole("button", { name: /entrar/i })
+      const submitButton = screen.getByRole("button", { name: /Login/i })
 
       await user.type(emailInput, "wrong@example.com")
       await user.type(passwordInput, VALID_PASSWORD)
@@ -283,20 +343,20 @@ describe("Login Component", () => {
 
       await waitFor(() => {
         expect(
-          screen.getByText("Email o contraseña incorrectos")
+          screen.getByText("Email o contraseña incorrectos.")
         ).toBeInTheDocument()
       })
     })
 
     it("debe mostrar error cuando falla la petición al servidor", async () => {
       const user = userEvent.setup()
-      mockLogin.mockRejectedValue(new Error("Network error"))
+      mockAxiosInstance.post.mockRejectedValue(new Error("Network error"))
 
       renderWithProviders(React.createElement(Login))
 
       const emailInput = screen.getByPlaceholderText("Email")
       const passwordInput = screen.getByPlaceholderText("Contraseña")
-      const submitButton = screen.getByRole("button", { name: /entrar/i })
+      const submitButton = screen.getByRole("button", { name: /Login/i })
 
       await user.type(emailInput, "test@example.com")
       await user.type(passwordInput, VALID_PASSWORD)
@@ -304,20 +364,27 @@ describe("Login Component", () => {
 
       await waitFor(() => {
         expect(
-          screen.getByText("Error en la autenticación")
+          screen.getByText("Error en la autenticación.")
         ).toBeInTheDocument()
       })
     })
 
     it("debe limpiar el error al volver a intentar el login", async () => {
       const user = userEvent.setup()
-      mockLogin.mockResolvedValueOnce(createMockResponse([]))
+
+      // Primer intento fallido
+      mockAxiosInstance.post.mockRejectedValueOnce({
+        response: {
+          status: 401,
+          data: { message: "Unauthorized" },
+        },
+      })
 
       renderWithProviders(React.createElement(Login))
 
       const emailInput = screen.getByPlaceholderText("Email")
       const passwordInput = screen.getByPlaceholderText("Contraseña")
-      const submitButton = screen.getByRole("button", { name: /entrar/i })
+      const submitButton = screen.getByRole("button", { name: /Login/i })
 
       // Primer intento - error
       await user.type(emailInput, "wrong@example.com")
@@ -326,64 +393,48 @@ describe("Login Component", () => {
 
       await waitFor(() => {
         expect(
-          screen.getByText("Email o contraseña incorrectos")
+          screen.getByText("Email o contraseña incorrectos.")
         ).toBeInTheDocument()
       })
 
-      // Limpiar el error antes del segundo intento
-      // Necesitamos esperar y limpiar los inputs
+      // Limpiar inputs
       await user.clear(emailInput)
       await user.clear(passwordInput)
 
       // Segundo intento - exitoso
-      mockLogin.mockResolvedValueOnce(
-        createMockResponse([{ id: 1, name: "Test", email: "test@example.com" }])
+      mockAxiosInstance.post.mockResolvedValueOnce(
+        createMockLoginResponse(MOCK_TOKEN)
       )
 
       await user.type(emailInput, "test@example.com")
       await user.type(passwordInput, VALID_PASSWORD)
-      
-      // El error debería limpiarse cuando hacemos click nuevamente
       await user.click(submitButton)
 
       await waitFor(() => {
-        expect(mockLogin).toHaveBeenCalledTimes(2)
+        expect(mockAxiosInstance.post).toHaveBeenCalledTimes(2)
       })
 
-      // Después del segundo envío exitoso, el error no debería estar
+      // El error debería limpiarse
       await waitFor(() => {
         expect(
-          screen.queryByText("Email o contraseña incorrectos")
+          screen.queryByText("Email o contraseña incorrectos.")
         ).not.toBeInTheDocument()
       })
     })
   })
 
   describe("Accesibilidad", () => {
-    it("debe tener inputs accesibles con placeholders apropiados", () => {
-      renderWithProviders(React.createElement(Login))
-
-      expect(screen.getByPlaceholderText("Email")).toHaveAttribute(
-        "type",
-        "email"
-      )
-      expect(screen.getByPlaceholderText("Contraseña")).toHaveAttribute(
-        "type",
-        "password"
-      )
-    })
-
     it("debe tener un submit button con texto apropiado", () => {
       renderWithProviders(React.createElement(Login))
 
-      const submitButton = screen.getByRole("button", { name: /entrar/i })
+      const submitButton = screen.getByRole("button", { name: /Login/i })
       expect(submitButton).toHaveAttribute("type", "submit")
     })
 
     it("debe permitir enviar el formulario con Enter", async () => {
       const user = userEvent.setup()
-      mockLogin.mockResolvedValue(
-        createMockResponse([{ id: 1, name: "Test", email: "test@example.com" }])
+      mockAxiosInstance.post.mockResolvedValue(
+        createMockLoginResponse(MOCK_TOKEN)
       )
 
       renderWithProviders(React.createElement(Login))
@@ -395,8 +446,37 @@ describe("Login Component", () => {
       await user.type(passwordInput, `${VALID_PASSWORD}{Enter}`)
 
       await waitFor(() => {
-        expect(mockLogin).toHaveBeenCalled()
+        expect(mockAxiosInstance.post).toHaveBeenCalled()
       })
+    })
+
+    it("debe deshabilitar los inputs durante el loading", async () => {
+      const user = userEvent.setup()
+      let resolveLogin: any
+      mockAxiosInstance.post.mockImplementation(
+        () =>
+          new Promise((resolve) => {
+            resolveLogin = resolve
+          })
+      )
+
+      renderWithProviders(React.createElement(Login))
+
+      const emailInput = screen.getByPlaceholderText("Email")
+      const passwordInput = screen.getByPlaceholderText("Contraseña")
+      const submitButton = screen.getByRole("button", { name: /Login/i })
+
+      await user.type(emailInput, "test@example.com")
+      await user.type(passwordInput, VALID_PASSWORD)
+      await user.click(submitButton)
+
+      await waitFor(() => {
+        expect(emailInput).toBeDisabled()
+        expect(passwordInput).toBeDisabled()
+      })
+
+      // Resolver la promesa para limpiar
+      resolveLogin(createMockLoginResponse(MOCK_TOKEN))
     })
   })
 })
