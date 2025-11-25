@@ -1,4 +1,4 @@
-import { OnboardingStep } from "@/components/onboarding/OnBoardingStep"
+import { OnboardingStep } from "@/components/onboarding/OnboardingStep"
 import { CircularProgressButton } from "@/components/ui/CircularProgessButton"
 import { useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"

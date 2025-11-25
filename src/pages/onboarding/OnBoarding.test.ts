@@ -16,7 +16,7 @@ jest.mock("react-router-dom", () => ({
 }))
 
 // Mock de los componentes hijos
-jest.mock("@/components/onboarding/OnBoardingStep", () => ({
+jest.mock("@/components/onboarding/OnboardingStep", () => ({
   OnboardingStep: ({
     title,
     description,
