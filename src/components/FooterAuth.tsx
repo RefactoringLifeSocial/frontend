@@ -22,7 +22,7 @@ function FooterAuth() {
             <nav className="flex gap-18">
               <div className="flex flex-col gap-3">
                 <Link
-                  to="/"
+                  to="/home"
                   className=" hover:text-red-main transition-colors duration-300 text-base"
                 >
                   Inicio
