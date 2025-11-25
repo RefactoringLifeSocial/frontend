@@ -72,7 +72,7 @@ const Onboarding = () => {
 
             {/* Logo */}
             <div className="flex items-center justify-center w-full -mt-16">
-              <img className="w-32 md:w-28" src="/logo-name.svg" alt="" />
+              <img className="w-32 md:w-28" src="/logo-name.svg" alt="Logo" />
             </div>
 
             {/* Description */}
