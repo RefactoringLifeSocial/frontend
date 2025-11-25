@@ -11,7 +11,7 @@ const HeaderAuth = () => {
       <nav className="mx-auto max-w-7xl px-2 md:px-8 py-3 w-full">
         <div className="flex items-center justify-between z-10 w-full">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
+          <Link to="/home" className="flex items-center gap-2">
             <img
               src="/logo.png"
               alt="logo"
@@ -47,15 +47,15 @@ const HeaderAuth = () => {
           <div className="hidden md:ml-6 md:flex md:flex-1">
             <div className="flex w-full items-center justify-end text-center flex-row gap-2 re">
               <NavLink
-                to="/"
+                to="/home"
                 className={`rounded-md px-3 py-2 text-sm font-medium relative group hover:text-violet-main transition-all duration-300 ${
-                  pathname === "/" ? "text-violet-main" : "text-light"
+                  pathname === "/home" ? "text-violet-main" : "text-light"
                 }`}
               >
                 Inicio
                 <span
                   className={`h-[2.5px] inline-block bg-violet-main absolute left-1/2 -translate-x-1/2 bottom-[1px] transition-[width] ease duration-[400ms] ${
-                    pathname === "/" ? "w-[80%]" : "w-0"
+                    pathname === "/home" ? "w-[80%]" : "w-0"
                   }`}
                 >
                   &nbsp;

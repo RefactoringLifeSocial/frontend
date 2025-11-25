@@ -5,7 +5,7 @@ import AuthLayout from "./layout/AuthLayout"
 import Home from "./pages/home/Home"
 import Error from "./pages/error/Error"
 import PasswordRecovery from "./pages/auth/password recovery/PasswordRecovery"
-import Onboarding from "./pages/onboarding/OnBording"
+import Onboarding from "./pages/onboarding/Onbording"
 
 function App() {
   return (
